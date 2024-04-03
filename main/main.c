@@ -54,13 +54,13 @@ static void gps_event_handler(void *event_handler_arg,
       gps->date.day--;
     }
     sprintf(gps_data_str,
-            "%d/%d/%d %d:%d:%d "
-            "lat:%.05f°N "
-            "lon:%.05f°E "
-            "alt:%.02fm\n",
+            "%d/%d/%d %d:%d:%d fix:%d "
+            "%.05f°N "
+            "%.05f°E "
+            "%.02fm\n",
             gps->date.year + YEAR_BASE, gps->date.month, gps->date.day,
             gps->tim.hour + TIME_ZONE, gps->tim.minute, gps->tim.second,
-            gps->latitude, gps->longitude, gps->altitude);
+            gps->fix, gps->latitude, gps->longitude, gps->altitude);
     break;
   case GPS_UNKNOWN:
     break;
