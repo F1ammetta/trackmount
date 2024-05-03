@@ -1,6 +1,8 @@
 #include "bmx280.h"
 #include "bt.h"
+#include "motors.h"
 #include "mpu6050.h"
+#include "nmea_parser.h"
 #include <stdio.h>
 
 #define TIME_ZONE (-5)   // Bogota, Lima, Quito time zone
@@ -42,32 +44,36 @@ void read_sensors_task(void *pvParameters) {
 }
 
 void app_main(void) {
-  ESP_ERROR_CHECK(bt_init());
-  bt_data_str = get_data_str();
 
-  mpu6050_handle_t imu_handle =
-      mpu6050_create(I2C_MASTER_NUM, MPU6050_I2C_ADDRESS);
+  // Motor test
+  motor_main();
 
-  ESP_ERROR_CHECK(mpu6050_wake_up(imu_handle));
-  ESP_ERROR_CHECK(mpu6050_config(imu_handle, ACCE_FS_4G, GYRO_FS_250DPS));
-
-  bmx280_t *bmx280 = bmx280_create(I2C_MASTER_NUM);
-
-  if (!bmx280) {
-    ESP_LOGE("BMX280", "BMX280 initialization failed");
-    return;
-  }
-
-  ESP_ERROR_CHECK(bmx280_init(bmx280));
-
-  bmx280_config_t config = ((bmx280_config_t){
-      BMX280_TEMPERATURE_OVERSAMPLING_X16, BMX280_PRESSURE_OVERSAMPLING_X16,
-      BME280_STANDBY_20M, BMX280_IIR_X16, BMX280_HUMIDITY_OVERSAMPLING_X16});
-
-  ESP_ERROR_CHECK(bmx280_configure(bmx280, &config));
-
-  sensor_data_t sensor_data = {.imu_handle = imu_handle, .bmx280 = bmx280};
-
-  xTaskCreate(read_sensors_task, "read_imu_task", 2048, (void *)&sensor_data,
-              10, NULL);
+  // ESP_ERROR_CHECK(bt_init());
+  // bt_data_str = get_data_str();
+  //
+  // mpu6050_handle_t imu_handle =
+  //     mpu6050_create(I2C_MASTER_NUM, MPU6050_I2C_ADDRESS);
+  //
+  // ESP_ERROR_CHECK(mpu6050_wake_up(imu_handle));
+  // ESP_ERROR_CHECK(mpu6050_config(imu_handle, ACCE_FS_4G, GYRO_FS_250DPS));
+  //
+  // bmx280_t *bmx280 = bmx280_create(I2C_MASTER_NUM);
+  //
+  // if (!bmx280) {
+  //   ESP_LOGE("BMX280", "BMX280 initialization failed");
+  //   return;
+  // }
+  //
+  // ESP_ERROR_CHECK(bmx280_init(bmx280));
+  //
+  // bmx280_config_t config = ((bmx280_config_t){
+  //     BMX280_TEMPERATURE_OVERSAMPLING_X16, BMX280_PRESSURE_OVERSAMPLING_X16,
+  //     BME280_STANDBY_20M, BMX280_IIR_X16, BMX280_HUMIDITY_OVERSAMPLING_X16});
+  //
+  // ESP_ERROR_CHECK(bmx280_configure(bmx280, &config));
+  //
+  // sensor_data_t sensor_data = {.imu_handle = imu_handle, .bmx280 = bmx280};
+  //
+  // xTaskCreate(read_sensors_task, "read_imu_task", 2048, (void *)&sensor_data,
+  //             10, NULL);
 }
