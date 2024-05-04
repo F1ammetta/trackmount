@@ -6,6 +6,7 @@
 #include "esp_spp_api.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "motors.h"
 #include "nmea_parser.h"
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -101,6 +102,21 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
       memcpy(data, param->data_ind.data, param->data_ind.len);
       data[param->data_ind.len] = '\0';
       ESP_LOGI(SPP_TAG, "Received data: %s", data);
+      // parse the data
+      motor_params_t *motor_params =
+          (motor_params_t *)malloc(sizeof(motor_params_t));
+      char *token = strtok(data, ",");
+      motor_params->steps = atoi(token);
+      token = strtok(NULL, ",");
+      motor_params->dir = atoi(token);
+      ESP_LOGI(SPP_TAG, "Motor params: steps: %d, dir: %d", motor_params->steps,
+               motor_params->dir);
+      token = strtok(NULL, ",");
+      motor_params->led1 = atoi(token);
+      token = strtok(NULL, ",");
+      motor_params->led2 = atoi(token);
+      // move the motor
+      motor_main(motor_params);
     }
     break;
   case ESP_SPP_CONG_EVT:
@@ -108,15 +124,15 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
     // check if the client is ready to receive data
     // if not, wait for 100ms and try again
     if (!param->cong.cong && connected) {
-      vTaskDelay(100 / portTICK_PERIOD_MS);
-      esp_spp_write(param->cong.handle, strlen(data), (uint8_t *)data);
+      // vTaskDelay(100 / portTICK_PERIOD_MS);
+      // esp_spp_write(param->cong.handle, strlen(data), (uint8_t *)data);
     }
     break;
   case ESP_SPP_WRITE_EVT:
     ESP_LOGI(SPP_TAG, "ESP_SPP_WRITE_EVT");
     if (!param->write.cong && connected) {
-      vTaskDelay(100 / portTICK_PERIOD_MS);
-      esp_spp_write(param->cong.handle, strlen(data), (uint8_t *)data);
+      // vTaskDelay(100 / portTICK_PERIOD_MS);
+      // esp_spp_write(param->cong.handle, strlen(data), (uint8_t *)data);
     }
     break;
   case ESP_SPP_SRV_OPEN_EVT:
@@ -124,8 +140,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
              "ESP_SPP_SRV_OPEN_EVT status:%d handle:%" PRIu32 ", rem_bda:[%s]",
              param->srv_open.status, param->srv_open.handle,
              bda2str(param->srv_open.rem_bda, bda_str, sizeof(bda_str)));
-    // send data to the client
-    // send greeting message
+    // send data to the client send greeting message
     esp_spp_write(param->srv_open.handle, strlen("Starting"),
                   (uint8_t *)"Starting");
 

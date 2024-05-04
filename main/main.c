@@ -45,11 +45,10 @@ void read_sensors_task(void *pvParameters) {
 
 void app_main(void) {
 
-  // Motor test
-  motor_main();
+  motor_init(1);
+  ESP_ERROR_CHECK(bt_init());
+  bt_data_str = get_data_str();
 
-  // ESP_ERROR_CHECK(bt_init());
-  // bt_data_str = get_data_str();
   //
   // mpu6050_handle_t imu_handle =
   //     mpu6050_create(I2C_MASTER_NUM, MPU6050_I2C_ADDRESS);
