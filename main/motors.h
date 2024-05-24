@@ -5,13 +5,15 @@
 #include <driver/gpio.h>
 #include <stdio.h>
 
+enum motor { MOTOR1, MOTOR2 };
+
 // void motor_init();
 typedef struct {
+  enum motor *motor;
   int steps;
   int dir;
-  int led1;
-  int led2;
 } motor_params_t;
 
-void motor_main();
-void motor_init(int motor);
+void motor_set_speed(enum motor motor, uint32_t speed);
+void motor_main(void *pvParameters);
+void motor_init(enum motor motor);

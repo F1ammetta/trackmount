@@ -45,9 +45,19 @@ void read_sensors_task(void *pvParameters) {
 
 void app_main(void) {
 
-  motor_init(1);
-  ESP_ERROR_CHECK(bt_init());
-  bt_data_str = get_data_str();
+  motor_init(MOTOR1);
+
+  int speed = 200;
+
+  while (1) {
+    motor_params_t args = {.motor = MOTOR1, .steps = 200, .dir = 1};
+    motor_main((void *)&args);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    ESP_LOGI("SPEED", "Speed: %d", speed);
+  }
+
+  // ESP_ERROR_CHECK(bt_init());
+  // bt_data_str = get_data_str();
 
   //
   // mpu6050_handle_t imu_handle =

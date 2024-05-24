@@ -111,10 +111,6 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
       motor_params->dir = atoi(token);
       ESP_LOGI(SPP_TAG, "Motor params: steps: %d, dir: %d", motor_params->steps,
                motor_params->dir);
-      token = strtok(NULL, ",");
-      motor_params->led1 = atoi(token);
-      token = strtok(NULL, ",");
-      motor_params->led2 = atoi(token);
       // move the motor
       motor_main(motor_params);
     }
